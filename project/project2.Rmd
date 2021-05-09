@@ -1,0 +1,306 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+# Modeling
+# Lily Tapia (lmt2622)
+
+## Guidelines and Rubric
+
+- **0. (5 pts)** Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?
+
+My dataset, ‘CollegeDistance’, involves data from a survey conducted by the Department of Education in 1980. There is a total of 14 variables of this dataset and 4739 observations. There are 8 categorical variables which include ‘gender’, ‘ethnicity’, ‘fcollege’ (if the student’s father was a college grad), ‘mcollege’ (if student’s mom was a college grad), ‘home’ (whether or not the family owns a home), ‘urban’ (if the school is in an urban area),‘income’ (if family income is above $25,000/year) and ‘region’ (West region or other). There are 6 total numeric variables which include the base year composite ‘score’ of high school seniors, ‘unemp’ which represents county unemployment rate in 1980, ‘wage’ (state hourly wage in manufacturing), ‘distance’ (distance from 4-year college), ‘tuition’ (average state tuition of 4-year college), and ‘education’ (years of education).
+
+The code used to read and summarize the data is shown below.
+```{R}
+library(tidyverse)
+library(dplyr)
+library(readr)
+CollegeDistance <- read.csv("CollegeDistance.csv")
+CollegeDistance$X1<-NULL
+summary(CollegeDistance) #summarize CollegeDistnace dataset
+```
+
+- **1. (15 pts)** Perform a MANOVA testing whether any of your numeric variables (or a subset of them, if including them all is unreasonable or doesn't make sense) show a mean difference across levels of one of your categorical variables (3). If they do, perform univariate ANOVAs to find response(s) showing a mean difference across groups (3), and perform post-hoc t tests to find which groups differ (3). Discuss the number of tests you have performed, calculate the probability of at least one type I error (if unadjusted), and adjust the significance level accordingly (bonferroni correction) before discussing significant differences (3). Briefly discuss some of the MANOVA assumptions and whether or not they are likely to have been met here (no need for anything too in-depth) (2).
+
+The results of the MANOVA test indicate that at least one county differs for at least one response variable. After the MANOVA, I performed 6 univariate ANOVAs which showed that the variable ‘score’ showed a mean difference across groups or ‘gender’. I then performed 6 post-hoc tests and these tests showed that only score significantly differed among the gender groups.
+
+Since I performed a total of 13 hypothesis tests (1 MANOVA, 6 univariate ANOVAs and 6 post-hoc),the probability of committing a Type I error is about 48.67%. The Bonferroni correction should be to set alpha equal to 0.03846.Using this correction, there is not a significant difference in the groups between the response variables.
+
+Some MANOVA assumptions include random samples/independent observations, multivariate normality of DVs, and homogeneity of within-group covariance matrices; it is not likely that these assumptions have been met, as the hypothesis tests for homogeneity and for multivariate normality resulted in p-values below 0.05, indicating that the null hypotheses (assumption for homogeneity and multivariate normality) were not met.
+
+```{R}
+#MANOVA
+mancollege <- manova(cbind(score, unemp, wage, distance, tuition, education)~gender, data=CollegeDistance)
+summary(mancollege) 
+
+#univariate ANOVAs
+summary.aov(mancollege)
+
+pairwise.t.test(CollegeDistance$score,CollegeDistance$gender, p.adj="none")
+pairwise.t.test(CollegeDistance$unemp,CollegeDistance$gender, p.adj="none")
+pairwise.t.test(CollegeDistance$wage,CollegeDistance$gender, p.adj="none")
+pairwise.t.test(CollegeDistance$distance,CollegeDistance$gender, p.adj="none")
+pairwise.t.test(CollegeDistance$tuition,CollegeDistance$gender, p.adj="none")
+pairwise.t.test(CollegeDistance$education,CollegeDistance$gender, p.adj="none")
+
+library(rstatix)#Test multivariate normality for each group (null: normality met)
+group <- CollegeDistance$gender
+DVs <- CollegeDistance %>% select(score, unemp, wage, distance, tuition, education)
+sapply(split(DVs,group), mshapiro_test)
+
+box_m(DVs, group)#Box's M test (null: homogeneity of vcov mats assumption met)
+```
+- **2. (10 pts)** Perform some kind of randomization test on your data (that makes sense). The statistic can be anything you want (mean difference, correlation, F-statistic/ANOVA, chi-squared), etc. State null and alternative hypotheses, perform the test, and interpret the results (7). Create a plot visualizing the null distribution and the test statistic (3).
+
+I will be using a mean difference randomization test. The null hypothesis will be that base year composite test score for high school seniors is the same for a school an urban area or a non-urban area. The alternative hypothesis would be that base year composite test score for high school seniors is different for schools in an urban area or a non-urban area. The test resulted in a p-value less than 0.05 (p-value of 0), so the null hypothesis is rejected, implying that there is a significant difference in score between schools in urban areas and schools in non-urban areas.
+
+```{R}
+CollegeDistance%>%group_by(urban)%>%summarize(means=mean(score))%>%summarize(`mean_diff`=diff(means)) #-1.752466
+rand_dist<- vector()
+for(i in 1:5000){
+  new<- data.frame(score=sample(CollegeDistance$score), urban=CollegeDistance$urban)
+  rand_dist[i] <- mean(new[new$urban == "yes",]$score)-
+                  mean(new[new$urban == "no",]$score)
+}
+
+mean(rand_dist < -1.752466 | rand_dist > 1.752466)
+
+{hist(rand_dist,main="",ylab=""); abline(v = c(-1.752466, 1.752466),col="red")}
+```
+- **3. (40 pts)** Build a linear regression model predicting one of your response variables from at least 2 other variables, including their interaction. Mean-center any numeric variables involved in the interaction.
+
+    - Interpret the coefficient estimates (do not discuss significance) (10)
+    - Plot the regression using `ggplot()` using geom_smooth(method="lm"). If your interaction is numeric by numeric, refer to code in the slides to make the plot or check out the `interactions` package, which makes this easier. If you have 3 or more predictors, just chose two of them to plot for convenience. (10)
+    - What proportion of the variation in the outcome does your model explain? (4)
+    - Check assumptions of linearity, normality, and homoskedasticity either graphically or using a hypothesis test (5)
+    - Regardless, recompute regression results with robust standard errors via `coeftest(..., vcov=vcovHC(...))`. Discuss significance of results, including any changes from before/after robust SEs if applicable. (10)
+    
+The linear regression model indicates that the average score for females is -0.6135 when wage is zero. For every one unit increase in wage, score goes up by 0.5789 for females. Also, males with a wage of zero have a predicted score that is 1.3445 points higher than females with a wage of zero, and the slope of wage on score is 0.3666 higher than females. Furthermore, 0.0197 of the variation in the outcome is explained by the model.
+
+When checking assumptions graphically and using a hypothesis test for homoskedasticity, the model does not display linearity and it does not show homoskedasticity very well either, so the model is not satisfactory. However, the model seems to pass the normality assumption. Using robust standard errors, the relationship (slope) of wage on score for males is now significant. Values that did not change include scores for females with zero wage (still significant) being 0.6135 points lower than males with a wage of zero, males’ scores being 1.344 points higher than females at a wage of zero, and the wage is still significantly associated with scores of females: for every one unit increase in wage, score goes up by 0.5789.
+
+```{R}
+library(sandwich); library(lmtest)
+CollegeDistance$score_c <- CollegeDistance$score - mean(CollegeDistance$score)
+CollegeDistance$wage_c <- CollegeDistance$wage - mean(CollegeDistance$wage)
+fitcollege<-lm(score_c~gender*wage_c, data=CollegeDistance) #linear regression
+summary(fitcollege)
+
+CollegeDistance %>% select(score, wage, gender) %>% na.omit %>% ggplot(aes(wage, score, color=gender)) + 
+geom_point()+geom_smooth(method="lm") + geom_vline(xintercept=mean(CollegeDistance$wage,na.rm=T),lty=2)
+
+residscollege<-fitcollege$residuals; fitvals<-fitcollege$fitted.values
+ggplot()+geom_point(aes(fitvals,residscollege))+geom_hline(yintercept=0, col="red") #graph looking for linearity and homoskedasticity
+bptest(fitcollege) # null: homoskedastic 
+ggplot()+geom_histogram(aes(residscollege), bins=20) #normality
+#corrected SE
+coeftest(fitcollege, vcov = vcovHC(fitcollege))[,1:4]
+```
+- **4. (5 pts)** Rerun same regression model (with the interaction), but this time compute bootstrapped standard errors (either by resampling observations or residuals). Discuss any changes you observe in SEs and p-values using these SEs compared to the original SEs and the robust SEs)
+
+The original and robust SEs are very similar, but the bootstrapped SEs values differ; the SE for females and males is much larger, the wage SE is smaller. The only SE that does not differ is for the slope of wage on score for males. This would mean that the p-values would also be adjusted using the bootstrapped SEs.
+
+```{R}
+boot_dat1<- sample_frac(CollegeDistance, replace=T)#sample rows from dataset
+samp_distn<-replicate(5000, {
+boot_dat1 <- sample_frac(CollegeDistance, replace=T) #take bootstrap sample of rows
+fitcollege1 <- lm(score~wage*gender, data=boot_dat1) #fit model on bootstrap sample
+coef(fitcollege1) #save coefs
+})
+## Estimated SEs
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+```
+- **5. (30 pts)** Fit a logistic regression model predicting a binary variable (if you don't have one, make/get one) from at least two explanatory variables (interaction not necessary). 
+
+    - Interpret coefficient estimates in context (10)
+    - Report a confusion matrix for your logistic regression (5)
+    - Compute and discuss the Accuracy, Sensitivity (TPR), Specificity (TNR), Precision (PPV), and AUC of your model (5)
+    - Using ggplot, make a density plot of the log-odds (logit) colored/grouped by your binary outcome variable (5)
+    - Generate an ROC curve (plot) and calculate AUC (either manually or with a package); interpret (5)
+    
+As a result of the logistic regression model, holding wage constant, going up 1 for score multiplies odds by a factor of e^0.0453=1.0463 and this is a significant effect.When controlling for score, going up 1 for wage multiplies odds by a factor of e^0.0885=1.0925 which is a significant effect. When wage and score were zero, the income predicted to be above $25000 a year was -4.087. These results are not accurate though as the AUC value is 0.3813 which is very poor. For the classification diagnostics, the accuracy was 0.712, sensitivity was 0.5714, specificity was 0.7128, and precision was 0.00586 which is very low. Looking at the ROC curve, predicting perfectly, TPR would be 1 while FPR would be 0 for any cutoff except 100% and there is a probability that ‘low’ income would have a higher logit/probability than ‘high’ income.
+
+```{R}
+#Logistic Regression
+CollegeDistance1<-CollegeDistance%>%mutate(y=ifelse(income=="high",1,0))
+CollegeDistance1$income<-factor(CollegeDistance1$income,levels=c("high","low")) 
+fitClog<-glm(y~score+wage, data=CollegeDistance1, family="binomial") 
+coeftest(fitClog)
+exp(coef(fitClog))
+probs<-predict(fitClog,type="response")
+#Confusion matrix
+table(predict=as.numeric(probs>.5),truth=CollegeDistance1$y)%>%addmargins
+#Density Plot
+CollegeDistance1$logit<-predict(fitClog,type="link")
+CollegeDistance1%>%ggplot()+geom_density(aes(logit,color=income,fill=income), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("logit (log-odds)")+
+  geom_rug(aes(logit,color=income))+
+  geom_text(x=-5,y=.07,label="TN = 431")+
+  geom_text(x=-1.75,y=.008,label="FN = 19")+
+  geom_text(x=1,y=.006,label="FP = 13")+
+  geom_text(x=5,y=.04,label="TP = 220")
+#ROC curve and AUC
+library(plotROC)
+ROCplot<-ggplot(CollegeDistance1)+geom_roc(aes(d=income,m=probs), n.cuts=0) 
+ROCplot
+calc_auc(ROCplot)
+(8+3368)/4739 #Accuracy
+8/14 #Sensitivity (TPR)
+3368/4725 #Specificity (TNR)
+8/1365 #ppv (precision)
+```
+- **6. (25 pts)** Perform a logistic regression predicting the same binary response variable from *ALL* of the rest of your variables (the more, the better!) 
+
+    - Fit model, compute in-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, AUC), and interpret (5)
+    - Perform 10-fold (or repeated random sub-sampling) CV with the same model and report average out-of-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, and AUC); interpret AUC and compare with the in-sample metrics (10)
+    - Perform LASSO on the same model/variables. Choose lambda to give the simplest model whose accuracy is near that of the best (i.e., `lambda.1se`). Discuss which variables are retained. (5)
+    - Perform 10-fold CV using only the variables lasso selected: compare model's out-of-sample AUC to that of your logistic regressions above (5)
+    
+For the logistic regression model on all of the rest of my variables, the accuracy is a value of 0.7647 which is a fair value, the sensitivity is 0.3802, specificity is 0.9203, precision is 0.6586 which could be better, and the AUC value is a fair value of 0.7502. In the 10-fold CV, the out-of-sample classification diagnostics are pretty similar to the original model. The classification diagnostics include: an accuracy of 0.7643, a sensitivity of 0.3781, specificity of 0.9208, precision of 0.6589 and an AUC value of 0.7461 which is still considered to be fair.
+
+The variables retained or selected by LASSO were gender (female), ethnicity (other), fcollege (yes), mcollege (yes), home(yes), urban(yes), unemp, wage, distance, and education. The out-of-sample AUC in the 10-fold CV using only the selected lasso variables was 0.7465 which is very similar to the out-of-sample AUC in the 10-fold CV using all of the other variables as well as the AUC result from the original logistic ‘fitall’ model.
+    
+```{R}
+library(lmtest)
+drop.cols <- c('score_c', 'wage_c', 'logit', 'income')
+CollegeDistance2<- CollegeDistance1 %>% select(-one_of(drop.cols))
+fitall<-glm(y~., data=CollegeDistance2, family="binomial") 
+exp(coef(fitall))
+coeftest(fitall)
+
+prob<-predict(fitall,type="response")
+class_diag <- function(probs,truth){ 
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV 
+  if(is.character(truth)==TRUE) truth<-as.factor(truth) 
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1 
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),factor(truth, levels=c(0,1))) 
+  acc=sum(diag(tab))/sum(tab) 
+  sens=tab[2,2]/colSums(tab)[2] 
+  spec=tab[1,1]/colSums(tab)[1] 
+  ppv=tab[2,2]/rowSums(tab)[2] 
+  
+#CALCULATE EXACT AUC 
+  ord<-order(probs, decreasing=TRUE) 
+  probs <- probs[ord]; truth <- truth[ord] 
+  TPR=cumsum(truth)/max(1,sum(truth))  
+  FPR=cumsum(!truth)/max(1,sum(!truth)) 
+  dup <-c(probs[-1]>=probs[-length(probs)], FALSE) 
+  TPR <-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1) 
+  n <- length(TPR) 
+  auc <- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n])) 
+  data.frame(acc,sens,spec,ppv,auc) 
+}
+class_diag(prob,CollegeDistance2$y)
+
+#10-fold CV
+set.seed(1234)
+k=10
+
+data<-CollegeDistance2[sample(nrow(CollegeDistance2)),] 
+folds<-cut(seq(1:nrow(CollegeDistance2)),breaks=k,labels=F) 
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  
+  truth<-test$y 
+  
+  fit<-glm(y~., data=train, family="binomial")
+  
+  probs<-predict(fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)
+
+#LASSO
+library(glmnet)
+set.seed(1234)
+
+CollegeDistance2$ethnicity <- factor(CollegeDistance2$ethnicity)
+CollegeDistance2$gender <- factor(CollegeDistance2$gender)
+CollegeDistance2$fcollege <- factor(CollegeDistance2$fcollege)
+CollegeDistance2$mcollege <- factor(CollegeDistance2$mcollege)
+CollegeDistance2$home <- factor(CollegeDistance2$home)
+CollegeDistance2$urban <- factor(CollegeDistance2$urban)
+CollegeDistance2$region <- factor(CollegeDistance2$region)
+
+head(model.matrix(y~-1+., data=CollegeDistance2))
+
+y1 <- as.matrix(CollegeDistance2$y)
+x <- model.matrix(y~ -1+., data=CollegeDistance2) # the -1 drops intercept/ref group
+head(x); x<-scale(x) #scale the dataset first
+
+cv<-cv.glmnet(x,y1,family="binomial")
+lasso<-glmnet(x,y1,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+
+#10-fold with selected LASSO variables
+set.seed(1234)
+k=10 #choose number of folds
+
+CollegeDistance2<-CollegeDistance2 %>% mutate(genderfemale=ifelse(CollegeDistance2$gender=="female",1,0), gendermale=ifelse(CollegeDistance2$gender=="male",1,0))
+CollegeDistance2<-CollegeDistance2 %>% mutate(ethnicityother=ifelse(CollegeDistance2$ethnicity=="other",1,0))
+CollegeDistance2<-CollegeDistance2 %>% mutate(fcollegeyes=ifelse(CollegeDistance2$fcollege=="yes",1,0))
+CollegeDistance2<-CollegeDistance2 %>% mutate(mcollegeyes=ifelse(CollegeDistance2$mcollege=="yes",1,0))
+CollegeDistance2<-CollegeDistance2 %>% mutate(homeyes=ifelse(CollegeDistance2$home=="yes",1,0))
+CollegeDistance2<-CollegeDistance2 %>% mutate(urbanyes=ifelse(CollegeDistance2$urban=="yes",1,0))
+CollegeDistance2<-CollegeDistance2 %>% mutate(regionwest=ifelse(CollegeDistance2$region=="yes",1,0))
+
+data1<-CollegeDistance2[sample(nrow(CollegeDistance2)),] #randomly order rows
+folds<-cut(seq(1:nrow(CollegeDistance2)),breaks=k,labels=F) #create folds
+diags<-NULL
+for(i in 1:k){
+## Create training and test sets
+train<-data1[folds!=i,]
+test<-data1[folds==i,]
+truth<-test$y
+## Train model on training set
+fit<-glm(y~genderfemale+ethnicityother+fcollegeyes+mcollegeyes+homeyes+urbanyes+unemp+wage+distance+education,data=train,family="binomial")
+probs<-predict(fit,newdata = test,type="response")
+## Test model on test set (save all k results)
+diags<-rbind(diags,class_diag(probs,truth))
+}
+diags%>%summarize_all(mean)
+```
+
+### Dataset Sources
+
+- CollegeDistance https://vincentarelbundock.github.io/Rdatasets/datasets.html
+
+...
+
+
+
+
+

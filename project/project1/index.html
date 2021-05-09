@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Lily Tapia" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="data-wrangling-and-data-exploration" class="section level2">
+<h2>Data Wrangling and Data Exploration</h2>
+</div>
+<div id="lily-tapia-lmt2622" class="section level2">
+<h2>Lily Tapia (lmt2622)</h2>
+<div id="instructions" class="section level3">
+<h3>Instructions</h3>
+<p>A knitted R Markdown document (ideally HTML) and the raw R Markdown file (as .Rmd) should both be submitted to Canvas by 11:59pm on the due date. These two documents will be graded jointly, so they must be consistent (i.e., don’t change the R Markdown file without also updating the knitted document).</p>
+<p>The text of the document should provide a narrative structure around your code/output. All results presented must have corresponding code. Any answers/results/plots etc. given without the corresponding R code that generated the result will not be considered. Furthermore, all code contained in your final project document must work correctly (knit early, knit often)! Please do not include any extraneous code or code which produces error messages. (Code that produces warnings is acceptable, as long as you understand what the warnings mean!)</p>
+</div>
+<div id="rubric" class="section level3">
+<h3>Rubric</h3>
+<p>Prerequisite: Finding appropriate data from at least two sources per the instructions above: Failure to do this will result in a 0! You will submit a .Rmd file and a knitted document (html/pdf).</p>
+<div id="introduction-5-pts" class="section level4">
+<h4>0. Introduction (5 pts)</h4>
+<p>In this project, I will be looking at relationships between the IMDb ratings, number of votes and metascores of movies and shows that Disney+ and Netflix have in common. The two datasets that I am using, disney_plus_shows and netflix_titles, contain characteristics of shows and movies from the streaming services of Disney+ and Netflix. The disney_plus_shows dataset has been renamed to disney_plus for convenience and it contains 992 observations and 19 variables, three of which are numeric. The disney_plus dataset contains the following variables for each movie or show title: imdb ID, type (movie or show), plot, rate, year, date of release and date added to Disney+, runtime, genre, director, writer, actors, language, country, awards, metascore, and imdb rating and votes. The netflix_titles has been renamed to netflix_ for convenience and contains 7739 observations and 12 variables. The netflix_ dataset contains the following variables for each movie or show title: ID, title, type (movie or show), director, cast, date added to Netlix, country, year released, rating, duration, category the movie or show is listed in and description. These datasets were acquired through Kaggle and downloaded as csv files.</p>
+<p>I chose these datasets because my family is full of movie and tv show series fanatics, and we actively use both of these streaming services. Also, I was interested in finding out what shows and movies Disney+ and Netflix have in common as well as the data for these shows and movies. Furthermore, I expect the two datasets to only share a select number of movies and shows.</p>
+<pre class="r"><code># The two datasets and codes used rename the datasets are
+# shown below:
+library(tidyverse)
+library(dplyr)
+library(readr)
+disney_plus_shows &lt;- read_csv(&quot;disney_plus_shows.csv&quot;, col_types = cols(metascore = col_number(), 
+    imdb_rating = col_number(), imdb_votes = col_number()))
+library(readr)
+netflix_titles &lt;- read_csv(&quot;netflix_titles.csv&quot;)
+disney_plus &lt;- disney_plus_shows
+netflix_ &lt;- netflix_titles</code></pre>
+</div>
+<div id="tidying-rearranging-widelong-10-pts" class="section level4">
+<h4>1. Tidying: Rearranging Wide/Long (10 pts)</h4>
+<p>My datasets were already tidy, so I used the pivot_longer and pivot_wider functions to untidy and tidy my summary statistics. Pivot_longer was used to untidy the data by placing all of the statistical functions in one column and all of the results from each statistical function in one column: this actually helped me better see all of the summary statistics for each numeric variable. Pivot_wider was then used to tidy the data so that each row or result is relevant to each statistical function for each numeric variable.</p>
+<pre class="r"><code># codes from joining:
+disnet &lt;- inner_join(disney_plus, netflix_, by = &quot;title&quot;)
+disnet1 &lt;- subset(disnet, select = -c(20, 21, 22, 23, 24, 25, 
+    26, 27, 28, 29, 30))
+head(disnet1)</code></pre>
+<pre><code>## # A tibble: 6 x 19
+##   imdb_id  title  plot    type.x rated year  released_at added_at runtime genre 
+##   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; 
+## 1 tt16206… A Wri… After … movie  PG    2018  9-Mar-18    25-Mar-… 109 min Adven…
+## 2 tt00820… Amy    A woma… movie  G     1981  20-Mar-81   12-Nov-… 100 min Famil…
+## 3 tt09607… Bedti… A hote… movie  PG    2008  25-Dec-08   5-Mar-20 99 min  Comed…
+## 4 tt59297… Befor… A look… movie  PG    2016  30-Oct-16   12-Nov-… 96 min  Docum…
+## 5 tt03978… Bolt   The ca… movie  PG    2008  21-Nov-08   12-Nov-… 96 min  Anima…
+## 6 tt20786… Brain… An exa… series TV-G  2011– 9-Oct-11    12-Nov-… 30 min  Docum…
+## # … with 9 more variables: director.x &lt;chr&gt;, writer &lt;chr&gt;, actors &lt;chr&gt;,
+## #   language &lt;chr&gt;, country.x &lt;chr&gt;, awards &lt;chr&gt;, metascore &lt;dbl&gt;,
+## #   imdb_rating &lt;dbl&gt;, imdb_votes &lt;dbl&gt;</code></pre>
+<pre class="r"><code># codes for finding summary statistics overall:
+disnet1_summarize_stats &lt;- disnet1 %&gt;% summarize_if(is.numeric, 
+    list(mean = mean, sd = sd, min = min, max = max, n_distinct = n_distinct), 
+    na.rm = T)
+disnet1_summarize_stats</code></pre>
+<pre><code>## # A tibble: 1 x 15
+##   metascore_mean imdb_rating_mean imdb_votes_mean metascore_sd imdb_rating_sd
+##            &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;
+## 1           60.5             6.70          95835.         16.2           1.32
+## # … with 10 more variables: imdb_votes_sd &lt;dbl&gt;, metascore_min &lt;dbl&gt;,
+## #   imdb_rating_min &lt;dbl&gt;, imdb_votes_min &lt;dbl&gt;, metascore_max &lt;dbl&gt;,
+## #   imdb_rating_max &lt;dbl&gt;, imdb_votes_max &lt;dbl&gt;, metascore_n_distinct &lt;int&gt;,
+## #   imdb_rating_n_distinct &lt;int&gt;, imdb_votes_n_distinct &lt;int&gt;</code></pre>
+<pre class="r"><code># untidying and tidying summary statistics:
+untidydisnetsum &lt;- disnet1_summarize_stats %&gt;% pivot_longer(1:15, 
+    names_to = &quot;functions&quot;, values_to = &quot;results&quot;)
+untidydisnetsum</code></pre>
+<pre><code>## # A tibble: 15 x 2
+##    functions                results
+##    &lt;chr&gt;                      &lt;dbl&gt;
+##  1 metascore_mean             60.5 
+##  2 imdb_rating_mean            6.70
+##  3 imdb_votes_mean         95835.  
+##  4 metascore_sd               16.2 
+##  5 imdb_rating_sd              1.32
+##  6 imdb_votes_sd          146266.  
+##  7 metascore_min              33   
+##  8 imdb_rating_min             3.3 
+##  9 imdb_votes_min            236   
+## 10 metascore_max              88   
+## 11 imdb_rating_max             8.8 
+## 12 imdb_votes_max         579293   
+## 13 metascore_n_distinct       17   
+## 14 imdb_rating_n_distinct     21   
+## 15 imdb_votes_n_distinct      32</code></pre>
+<pre class="r"><code>tidydisnetsum &lt;- untidydisnetsum %&gt;% group_by(functions) %&gt;% 
+    mutate(row = row_number()) %&gt;% tidyr::pivot_wider(names_from = functions, 
+    values_from = results) %&gt;% select(-row)
+head(tidydisnetsum)</code></pre>
+<pre><code>## # A tibble: 1 x 15
+##   metascore_mean imdb_rating_mean imdb_votes_mean metascore_sd imdb_rating_sd
+##            &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;
+## 1           60.5             6.70          95835.         16.2           1.32
+## # … with 10 more variables: imdb_votes_sd &lt;dbl&gt;, metascore_min &lt;dbl&gt;,
+## #   imdb_rating_min &lt;dbl&gt;, imdb_votes_min &lt;dbl&gt;, metascore_max &lt;dbl&gt;,
+## #   imdb_rating_max &lt;dbl&gt;, imdb_votes_max &lt;dbl&gt;, metascore_n_distinct &lt;dbl&gt;,
+## #   imdb_rating_n_distinct &lt;dbl&gt;, imdb_votes_n_distinct &lt;dbl&gt;</code></pre>
+</div>
+<div id="joiningmerging-10-pts" class="section level4">
+<h4>2. Joining/Merging (10 pts)</h4>
+<p>I joined the two datasets using inner_join and named this joined dataset ‘disnet’. I chose to use inner_join because I wanted to focus on only the movies and tv shows (or titles) Disney+ and Netflix shared and drop all of the titles the two datasets did not share. When joined using inner_join, 8,579 titles were dropped that did not match between both datasets from the 8612 total titles. This left the new dataset with only 33 observations total and 32 unique titles total. After joining the datasets, there were duplicate variables from the Neflix dataset that I dropped using subset() and select() which indexed and selected the duplicated variables I wanted to drop. This left the final joined dataset, named ‘disnet1’, with 33 observations and 19 columns.</p>
+<pre class="r"><code>disnet &lt;- inner_join(disney_plus, netflix_, by = &quot;title&quot;)
+disnet1 &lt;- subset(disnet, select = -c(20, 21, 22, 23, 24, 25, 
+    26, 27, 28, 29, 30))
+head(disnet1)</code></pre>
+<pre><code>## # A tibble: 6 x 19
+##   imdb_id  title  plot    type.x rated year  released_at added_at runtime genre 
+##   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; 
+## 1 tt16206… A Wri… After … movie  PG    2018  9-Mar-18    25-Mar-… 109 min Adven…
+## 2 tt00820… Amy    A woma… movie  G     1981  20-Mar-81   12-Nov-… 100 min Famil…
+## 3 tt09607… Bedti… A hote… movie  PG    2008  25-Dec-08   5-Mar-20 99 min  Comed…
+## 4 tt59297… Befor… A look… movie  PG    2016  30-Oct-16   12-Nov-… 96 min  Docum…
+## 5 tt03978… Bolt   The ca… movie  PG    2008  21-Nov-08   12-Nov-… 96 min  Anima…
+## 6 tt20786… Brain… An exa… series TV-G  2011– 9-Oct-11    12-Nov-… 30 min  Docum…
+## # … with 9 more variables: director.x &lt;chr&gt;, writer &lt;chr&gt;, actors &lt;chr&gt;,
+## #   language &lt;chr&gt;, country.x &lt;chr&gt;, awards &lt;chr&gt;, metascore &lt;dbl&gt;,
+## #   imdb_rating &lt;dbl&gt;, imdb_votes &lt;dbl&gt;</code></pre>
+</div>
+<div id="wrangling-40-pts" class="section level4">
+<h4>3. Wrangling (40 pts)</h4>
+<p>First, I used the filter(), select() and arrange() functions to explore my data. I used these functions in combination to find which title has the highest number of IMDb votes in the USA; this result was the movie title “Black Panther”. I then used mutate to create a new variable that was a function of imdb votes and ratings which produced the proportion of IMDb ratings to IMDb votes. I also used group_by() to explore the number of titles in each language and country and I found that the most titles (16 titles) are in English and in the USA.</p>
+<p>To calculate the overall summary statistics of the numeric variables in my dataset, I used summarize(). I found that the mean IMDb rating was about 6.697, the mean number of IMDb votes was 95,835.03 and the mean metascore was about 60.526. I then calculated the summary statistics grouped by language. I found that the language category with the highest mean imdb votes was ‘English, Swahili, Nama, Xhosa, Korean’ while the language with the highest mean IMDb rating was ‘English, Spanish, Indonesian, Chinese, Arabic, Russian, Hindi, Tibetan, Portuguese, French, Thai, Norwegian, Italian, Japanese, Mongolian, Kazakh’ which is interesting, but makes sense since this language category offers the largest range of languages for movies or shows. Lastly, I used the cor() function to evaluate which pairs of my numeric variables have any correlation with one another; metascore and IMDb rating were the only pair that have the highest correlation, but this correlation is not very strong.</p>
+<pre class="r"><code># Filter, arrange and select functions:
+head(disnet1 %&gt;% filter(country.x == &quot;USA&quot;) %&gt;% select(title, 
+    imdb_votes) %&gt;% arrange(desc(imdb_votes)))</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   title              imdb_votes
+##   &lt;chr&gt;                   &lt;dbl&gt;
+## 1 Black Panther          579293
+## 2 Thor: Ragnarok         542938
+## 3 National Treasure      295236
+## 4 John Carter            248903
+## 5 The Little Mermaid     227707
+## 6 Bolt                   182591</code></pre>
+<pre class="r"><code># Group_by using 2 variables:
+disnetlangcount &lt;- disnet1 %&gt;% group_by(language, country.x) %&gt;% 
+    summarize(count = n())
+head(disnetlangcount)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   language [1]
+##   language country.x               count
+##   &lt;chr&gt;    &lt;chr&gt;                   &lt;int&gt;
+## 1 English  Canada, USA                 1
+## 2 English  Canada, USA, UK, France     1
+## 3 English  UK                          1
+## 4 English  USA                        16
+## 5 English  USA, Australia              1
+## 6 English  USA, UK, Australia          1</code></pre>
+<pre class="r"><code># Using mutate():
+disnet_function &lt;- disnet1 %&gt;% mutate(imdb_rating_per_votes = imdb_rating/imdb_votes)
+head(disnet_function)</code></pre>
+<pre><code>## # A tibble: 6 x 20
+##   imdb_id  title  plot    type.x rated year  released_at added_at runtime genre 
+##   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; 
+## 1 tt16206… A Wri… After … movie  PG    2018  9-Mar-18    25-Mar-… 109 min Adven…
+## 2 tt00820… Amy    A woma… movie  G     1981  20-Mar-81   12-Nov-… 100 min Famil…
+## 3 tt09607… Bedti… A hote… movie  PG    2008  25-Dec-08   5-Mar-20 99 min  Comed…
+## 4 tt59297… Befor… A look… movie  PG    2016  30-Oct-16   12-Nov-… 96 min  Docum…
+## 5 tt03978… Bolt   The ca… movie  PG    2008  21-Nov-08   12-Nov-… 96 min  Anima…
+## 6 tt20786… Brain… An exa… series TV-G  2011– 9-Oct-11    12-Nov-… 30 min  Docum…
+## # … with 10 more variables: director.x &lt;chr&gt;, writer &lt;chr&gt;, actors &lt;chr&gt;,
+## #   language &lt;chr&gt;, country.x &lt;chr&gt;, awards &lt;chr&gt;, metascore &lt;dbl&gt;,
+## #   imdb_rating &lt;dbl&gt;, imdb_votes &lt;dbl&gt;, imdb_rating_per_votes &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Summary statistics overall:
+disnet1_summarize_stats &lt;- disnet1 %&gt;% summarize_if(is.numeric, 
+    list(mean = mean, sd = sd, min = min, max = max, n_distinct = n_distinct), 
+    na.rm = T)
+head(disnet1_summarize_stats)</code></pre>
+<pre><code>## # A tibble: 1 x 15
+##   metascore_mean imdb_rating_mean imdb_votes_mean metascore_sd imdb_rating_sd
+##            &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;
+## 1           60.5             6.70          95835.         16.2           1.32
+## # … with 10 more variables: imdb_votes_sd &lt;dbl&gt;, metascore_min &lt;dbl&gt;,
+## #   imdb_rating_min &lt;dbl&gt;, imdb_votes_min &lt;dbl&gt;, metascore_max &lt;dbl&gt;,
+## #   imdb_rating_max &lt;dbl&gt;, imdb_votes_max &lt;dbl&gt;, metascore_n_distinct &lt;int&gt;,
+## #   imdb_rating_n_distinct &lt;int&gt;, imdb_votes_n_distinct &lt;int&gt;</code></pre>
+<pre class="r"><code># Summarize using group_by:
+groupbylanguagestats &lt;- disnet1 %&gt;% group_by(language) %&gt;% summarize_if(is.numeric, 
+    list(mean = mean, sd = sd), na.rm = T)
+head(groupbylanguagestats)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   language          metascore_mean imdb_rating_mean imdb_votes_mean metascore_sd
+##   &lt;chr&gt;                      &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;
+## 1 English                     60.3             6.66          84760.         12.1
+## 2 English, America…          NaN               6.6             236          NA  
+## 3 English, French             80.5             7.35         172394.         10.6
+## 4 English, German             61               6.4           30336          NA  
+## 5 English, Norwegi…           36               4.1           43808          NA  
+## 6 English, Spanish            39               6.8          295236          NA  
+## # … with 2 more variables: imdb_rating_sd &lt;dbl&gt;, imdb_votes_sd &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Correlation:
+cordisnet &lt;- disnet1 %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)
+cordisnet</code></pre>
+<pre><code>##             metascore imdb_rating imdb_votes
+## metascore   1.0000000   0.6760070  0.4379407
+## imdb_rating 0.6760070   1.0000000  0.2107868
+## imdb_votes  0.4379407   0.2107868  1.0000000</code></pre>
+</div>
+<div id="visualizing-30-pts" class="section level4">
+<h4>4. Visualizing (30 pts)</h4>
+<p>The correlation heatmap represents the correlation between the numeric variables in the disnet1 dataset. This graph showed that the pair of numeric variables that had the highest correlation (0.68) in my dataset were metascore and IMDb rating. However, this graph also shows that most of the other variables do not have strong correlations between each other and are instead more independent since their correlation coefficients are closer to zero than -1 or 1.</p>
+<p>The scatterplot shows the relationship between IMDb votes and ratings in the disnet1 between the different types of titles (movies or series). From the graph, it can be concluded that the majority of movies and series have an IMDb rating between the range of about 6-8. Also, movies have a higher number of IMDb votes than series overall. However, it does not seem that there is a strong relationship between the number of IMDb votes and IMDb rating; even when rated higher, some movies and series still had a lower number of IMDb votes.</p>
+<p>Finally, I used a barplot to compare the number of IMDb votes to the rating of a movie or series. For this barplot, I decided to use filter() and make another dataset version of ‘disnet1’ called ‘disnet2’ which would contain only movies and series rated “G”, “PG”, or “PG-13” because there are a couple duplicates of these ratings that are called different names like “TV-G”, and because I just wanted to focus on the most familiar ratings. After wrangling my dataset, I found that movies rated PG-13 had the highest number of IMDb votes compared to other ratings. Another interesting result is that it appears that in the ‘disnet2’ dataset, only movies were categorized as rated G, PG or PG-13 since the color purple which indicates series did not appear under these categories of ‘rated’.</p>
+<pre class="r"><code># Correlation Heatmap
+tidycordisnet &lt;- cordisnet %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;var2&quot;, values_to = &quot;correlation&quot;)
+tidycordisnet %&gt;% ggplot(aes(var1, var2, fill = correlation)) + 
+    geom_tile() + scale_fill_gradient2(low = &quot;yellow&quot;, mid = &quot;white&quot;, 
+    high = &quot;red&quot;) + geom_text(aes(label = round(correlation, 
+    2)), color = &quot;black&quot;, size = 4) + coord_fixed() + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1)) + ggtitle(&quot;Correlation in IMDb Votes, IMDb Rating &amp; Metascore&quot;) + 
+    theme(plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Scatterplot
+ggplot(disnet1, aes(imdb_rating, imdb_votes, color = type.x)) + 
+    geom_point() + theme(legend.position = c(0.9, 0.5)) + scale_color_manual(breaks = c(&quot;movie&quot;, 
+    &quot;series&quot;), values = c(&quot;orange&quot;, &quot;red&quot;)) + scale_y_continuous(limits = c(0, 
+    6e+05), breaks = seq(0, 6e+05, by = 1e+05)) + ggtitle(&quot;IMBd Votes vs IMBd Rating&quot;) + 
+    ylab(&quot;IMDb Votes&quot;) + xlab(&quot;IMDb Rating&quot;) + theme(plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Barplot
+disnet2 &lt;- disnet1 %&gt;% filter(rated == &quot;G&quot; &amp; rated == &quot;PG&quot; &amp; 
+    rated == &quot;PG-13&quot;)
+target &lt;- c(&quot;G&quot;, &quot;PG&quot;, &quot;PG-13&quot;)
+disnet2 &lt;- filter(disnet1, rated %in% target)
+ggplot(disnet2, aes(x = rated, y = imdb_votes, fill = type.x)) + 
+    geom_bar(stat = &quot;summary&quot;, fun = mean, position = &quot;dodge&quot;, 
+        na.rm = T) + geom_errorbar(stat = &quot;summary&quot;, fun.data = mean_se, 
+    position = &quot;dodge&quot;, na.rm = T) + ggtitle(&quot;IMDb Votes Related to Rate&quot;) + 
+    xlab(&quot;Rated&quot;) + ylab(&quot;IMDb Votes&quot;) + theme(plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-3.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="dimensionality-reduction-30-pts" class="section level4">
+<h4>5. Dimensionality Reduction (30 pts)</h4>
+<p>I first created another dataset from my original dataset with dropped NA values in order to cluster my data. After doing this, my new data set contained 19 total observations instead of the 33 original observations. I also only selected my numeric variables in this new dataset.</p>
+<p>Then, I decided to cluster my data by 3 clusters; 2 clusters would have been optimal, but it seemed easier to visualize my data using 3 clusters. After I clustered my numeric data (metascore, IMDb votes and ratings) using 3 clusters, I found that the average silhouette width was about 0.66 which means that a reasonable structure has been found, but it could be stronger. Furthermore, I found that overall, titles with metascores higher than about 60 seemed to have higher IMDb ratings. Also, titles in cluster 1 had higher metascores, IMDb ratings and IMDb votes overall. However, it was harder to see any relationship between these variables for titles in clusters 2 and 3; as metascore or IMDb rating increased, the number of IMDb votes for these clusters did not fluctuate significantly.</p>
+<pre class="r"><code>disnetmeans &lt;- disnet1 %&gt;% na.omit() %&gt;% select(&quot;metascore&quot;, 
+    &quot;imdb_rating&quot;, &quot;imdb_votes&quot;)
+library(cluster)
+sil_width &lt;- vector()  #empty vector to hold mean sil width
+for (i in 2:10) {
+    kms &lt;- kmeans(disnetmeans, centers = i)  #compute k-means solution
+    sil &lt;- silhouette(kms$cluster, dist(disnetmeans))  #get sil widths
+    sil_width[i] &lt;- mean(sil[, 3])  #take averages (higher is better)
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10) + labs(x = &quot;k (fixed number of clusters)&quot;, 
+    y = &quot;Silhouette Width&quot;, title = &quot;Kmeans Clustering&quot;) + theme(plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>kmeans2 &lt;- disnetmeans %&gt;% kmeans(3)  #3 centers, or number of clusters
+kmeans2</code></pre>
+<pre><code>## K-means clustering with 3 clusters of sizes 2, 6, 11
+## 
+## Cluster means:
+##   metascore imdb_rating imdb_votes
+## 1  81.00000        7.60   561115.5
+## 2  62.50000        7.15   210253.7
+## 3  55.72727        6.20    55829.0
+## 
+## Clustering vector:
+##  [1] 3 3 3 2 3 3 3 2 1 1 3 3 2 2 2 2 3 3 3
+## 
+## Within cluster sum of squares by cluster:
+## [1]   660843111 16298836056  9925200004
+##  (between_SS / total_SS =  94.4 %)
+## 
+## Available components:
+## 
+## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;</code></pre>
+<pre class="r"><code>kmeans2$size  #how many in each cluster</code></pre>
+<pre><code>## [1]  2  6 11</code></pre>
+<pre class="r"><code>kmeans2clust &lt;- disnetmeans %&gt;% as.data.frame %&gt;% mutate(cluster = as.factor(kmeans2$cluster))
+kmeans2clust</code></pre>
+<pre><code>##    metascore imdb_rating imdb_votes cluster
+## 1         53         4.2      38659       3
+## 2         33         6.0      85524       3
+## 3         63         8.3      25171       3
+## 4         67         6.8     182591       2
+## 5         48         5.7      82825       3
+## 6         41         5.1      41151       3
+## 7         36         4.1      43808       3
+## 8         51         6.6     248903       2
+## 9         88         7.3     579293       1
+## 10        74         7.9     542938       1
+## 11        68         7.5      45667       3
+## 12        61         6.4      30336       3
+## 13        39         6.8     295236       2
+## 14        65         7.5     147182       2
+## 15        65         7.6     159903       2
+## 16        88         7.6     227707       2
+## 17        75         7.1      84999       3
+## 18        73         7.1     117082       3
+## 19        62         6.7      18897       3</code></pre>
+<pre class="r"><code># visualizing clustered data
+library(GGally)
+ggpairs(kmeans2clust, columns = 1:3, aes(color = cluster), upper = NULL)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(cluster)
+pam1 &lt;- kmeans2clust %&gt;% pam(k = 3)
+pam1</code></pre>
+<pre><code>## Medoids:
+##      ID metascore imdb_rating imdb_votes cluster
+## [1,]  6        41         5.1      41151       3
+## [2,]  4        67         6.8     182591       2
+## [3,] 10        74         7.9     542938       1
+## Clustering vector:
+##  [1] 1 1 1 2 1 1 1 2 3 3 1 1 2 2 2 2 1 2 1
+## Objective function:
+##    build     swap 
+## 36285.31 30139.12 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>disnet1[pam1$id.med, ]</code></pre>
+<pre><code>## # A tibble: 3 x 19
+##   imdb_id  title  plot    type.x rated year  released_at added_at runtime genre 
+##   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; 
+## 1 tt20786… Brain… An exa… series TV-G  2011– 9-Oct-11    12-Nov-… 30 min  Docum…
+## 2 tt59297… Befor… A look… movie  PG    2016  30-Oct-16   12-Nov-… 96 min  Docum…
+## 3 tt01034… The L… The 19… series TV-Y  1992… 11-Sep-92   12-Nov-… 25 min  Anima…
+## # … with 9 more variables: director.x &lt;chr&gt;, writer &lt;chr&gt;, actors &lt;chr&gt;,
+## #   language &lt;chr&gt;, country.x &lt;chr&gt;, awards &lt;chr&gt;, metascore &lt;dbl&gt;,
+## #   imdb_rating &lt;dbl&gt;, imdb_votes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>pam1$silinfo$avg.width  #average silhouette width</code></pre>
+<pre><code>## [1] 0.6585358</code></pre>
+<pre class="r"><code>plot(pam1, which = 2)  #gives avg silhouette width and silhouette widths of each cluster.</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="dataset-sources" class="section level3">
+<h3>Dataset Sources</h3>
+<ul>
+<li>Disney+ <a href="https://www.kaggle.com/unanimad/disney-plus-shows" class="uri">https://www.kaggle.com/unanimad/disney-plus-shows</a></li>
+<li>Netflix <a href="https://www.kaggle.com/shivamb/netflix-shows" class="uri">https://www.kaggle.com/shivamb/netflix-shows</a>
+…</li>
+</ul>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
