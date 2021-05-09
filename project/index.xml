@@ -5,11 +5,12 @@
     <link>/project/</link>
     <description>Recent content in Projects on Chris Turner</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-US</language>
+    <lastBuildDate>Sat, 08 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Project 1: Exploratory Data Analysis</title>
       <link>/project/project1/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 08 May 2021 00:00:00 +0000</pubDate>
       
       <guid>/project/project1/</guid>
       <description>Data Wrangling and Data Exploration  Lily Tapia (lmt2622) Instructions A knitted R Markdown document (ideally HTML) and the raw R Markdown file (as .Rmd) should both be submitted to Canvas by 11:59pm on the due date. These two documents will be graded jointly, so they must be consistent (i.e., don’t change the R Markdown file without also updating the knitted document).
@@ -19,7 +20,7 @@ The text of the document should provide a narrative structure around your code/o
     <item>
       <title>Project 2: Modeling, Testing, and Predicting</title>
       <link>/project/project2/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 08 May 2021 00:00:00 +0000</pubDate>
       
       <guid>/project/project2/</guid>
       <description>Modeling  Lily Tapia (lmt2622) Guidelines and Rubric  0. (5 pts) Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?  My dataset, ‘CollegeDistance’, involves data from a survey conducted by the Department of Education in 1980. There is a total of 14 variables of this dataset and 4739 observations. There are 8 categorical variables which include ‘gender’, ‘ethnicity’, ‘fcollege’ (if the student’s father was a college grad), ‘mcollege’ (if student’s mom was a college grad), ‘home’ (whether or not the family owns a home), ‘urban’ (if the school is in an urban area),‘income’ (if family income is above $25,000/year) and ‘region’ (West region or other).</description>
