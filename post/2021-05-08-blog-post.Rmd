@@ -7,6 +7,29 @@ categories: []
 tags: []
 description: ''
 ---
+
+```{python}
+TC = "This is my dog, Cooper."
+TC[0:23]
+```
+```{R}
+#R code chunk
+library(reticulate)
+
+DC<-"This is my"
+```
+
+```{python}
+#Python code chunk
+DC="dog, Cooper."
+print(r.DC,DC) #access R-defined objects with r. 
+```
+```{R}
+#R code chunk
+cat(c(DC,py$DC)) #access Python-defined objects with py$
+```
+![](/post/2021-05-08-blog-post_files/3CE3F023-2544-4A32-8AC8-B938F02009A5 (1).JPG)
+
 [Link to project 1](/project/project1/)
 
 [Link to google](https://www.google.com)

@@ -72,6 +72,21 @@
               
 
 
+<pre class="python"><code>TC = &quot;This is my dog, Cooper.&quot;
+TC[0:23]</code></pre>
+<pre><code>## &#39;This is my dog, Cooper.&#39;</code></pre>
+<pre class="r"><code>#R code chunk
+library(reticulate)
+
+DC&lt;-&quot;This is my&quot;</code></pre>
+<pre class="python"><code>#Python code chunk
+DC=&quot;dog, Cooper.&quot;
+print(r.DC,DC) #access R-defined objects with r. </code></pre>
+<pre><code>## This is my dog, Cooper.</code></pre>
+<pre class="r"><code>#R code chunk
+cat(c(DC,py$DC)) #access Python-defined objects with py$</code></pre>
+<pre><code>## This is my dog, Cooper.</code></pre>
+<p><img src="../../../../../post/2021-05-08-blog-post_files/3CE3F023-2544-4A32-8AC8-B938F02009A5%20(1).JPG" /></p>
 <p><a href="../../../../../project/project1/">Link to project 1</a></p>
 <p><a href="https://www.google.com">Link to google</a></p>
 
