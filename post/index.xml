@@ -14,7 +14,7 @@
       
       <guid>/post/2021/05/08/blog-post/</guid>
       <description>Coding with R and Python One thing that is cool about R is that you can easily transfer codes/objects from R to Python and vice versa. Below is an example of how you can do this.
-First, load the reticulate package in R and define your object (which could be anything really). In this case, I will be defining “This is my” as the object “dog”.
+First, load the ‘reticulate’ package in R and define your object (which could be anything really). In this case, I will be defining “This is my” as the object “dog”.
 #R code chunk library(reticulate) dog&amp;lt;-&amp;quot;This is my&amp;quot; Now, define “dog” (or the assigned name you used above) as an object in Python.</description>
     </item>
     
