@@ -7,7 +7,7 @@
     <meta name="author" content="Lily Tapia" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
-    <title>Blog Post</title>
+    <title>R and Python</title>
     <meta name="generator" content="Hugo 0.83.1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../../../../post/2021/05/08/blog-post/">Blog Post</a></strong>
+            <strong><a href="../../../../../post/2021/05/08/blog-post/">R and Python</a></strong>
           </h3>
         </div>
  
@@ -72,23 +72,32 @@
               
 
 
-<pre class="python"><code>TC = &quot;This is my dog, Cooper.&quot;
-TC[0:23]</code></pre>
-<pre><code>## &#39;This is my dog, Cooper.&#39;</code></pre>
+<div id="coding-with-r-and-python" class="section level2">
+<h2>Coding with R and Python</h2>
+<p>One thing that is cool about R is that you can easily transfer codes/objects from R to Python and vice versa. Below is an example of how you can do this.</p>
+<p>First, load the reticulate package in R and define your object (which could be anything really). In this case, I will be defining “This is my” as the object “dog”.</p>
 <pre class="r"><code>#R code chunk
 library(reticulate)
 
-DC&lt;-&quot;This is my&quot;</code></pre>
+dog&lt;-&quot;This is my&quot;</code></pre>
+<p>Now, define “dog” (or the assigned name you used above) as an object in Python. Here, I define “dog” as “dog, Cooper”. Then, use print() and use the code “r.(your R-defined object), (Python-defined object, should be the same as the R-defined object)”. The “r.(your R-defined object)” will allow you to access, select, and share defined objects from your R environment so that you can use them in Python!</p>
 <pre class="python"><code>#Python code chunk
-DC=&quot;dog, Cooper.&quot;
-print(r.DC,DC) #access R-defined objects with r. </code></pre>
+dog=&quot;dog, Cooper.&quot;
+print(r.dog,dog) #access R-defined objects with r. </code></pre>
 <pre><code>## This is my dog, Cooper.</code></pre>
+<p>Now the output printed combines information from “dog” from R first and Python second. Pretty cool!</p>
+<p>Below is an example of how you can also combine information from Python to R. All you need to do is reference desired information from Python in R. Here, I reference “dog” which is the defined object I used in the previous codes above. Then, I use py$dog to select that object from Python.</p>
 <pre class="r"><code>#R code chunk
-cat(c(DC,py$DC)) #access Python-defined objects with py$</code></pre>
+cat(c(dog,py$dog)) #access Python-defined objects with py$</code></pre>
 <pre><code>## This is my dog, Cooper.</code></pre>
-<p><img src="../../../../../post/2021-05-08-blog-post_files/3CE3F023-2544-4A32-8AC8-B938F02009A5%20(1).JPG" /></p>
+<p>Like before, the result is a combination of information, but this time from Python first, then R.</p>
+<p>Now you have a basic understanding of how to use R and Python interchangeably.</p>
+<p>However, you may be wondering, what does my dog Cooper look like? Well, I’m glad you asked!</p>
+<p>Here’s a picture of my dog, Cooper! He is about to be 4 years old this summer, he loves playing fetch and he can jump about 5 feet high! He is also a big UT fan!</p>
+<p><img src="../../../../../post/2021-05-08-blog-post_files/QBHR8694.JPG" /></p>
 <p><a href="../../../../../project/project1/">Link to project 1</a></p>
 <p><a href="https://www.google.com">Link to google</a></p>
+</div>
 
             
         <hr>         <div class="related-posts">
